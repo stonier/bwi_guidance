@@ -114,9 +114,13 @@ namespace clingo_interface_gui {
       boost::shared_ptr<clingo_interface::GazeboHandler> gh_;
       boost::shared_ptr<clingo_interface::CostEstimator> ce_;
 
+      bool sound_request_;
       bool sim_auto_door_;
       int close_door_idx_;
       int prev_door_idx_;
+
+      ros::Publisher sound_player_;
+      void speak(const std::string& text);
       
   };
 

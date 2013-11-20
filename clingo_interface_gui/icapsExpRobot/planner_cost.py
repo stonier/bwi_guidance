@@ -220,7 +220,7 @@ def SendoutPlan(result,client):
 				nexttime = s[0]+1		
 			if ss[0]==nexttime:
 				expectstate.append(ss)
-	#		print expectstate
+			#print "Expected State: " + str(expectstate)
 
 		needreplan = 0
 		for fluent in result.observable_fluents:
@@ -275,12 +275,30 @@ def SendoutPlan(result,client):
 						OutputEnvironmentalKnowledge(believeinside,"believeinside")				
 
 				else:
-					inputFile.write(newinit)
-			inputFile.close()
-			newresult = GeneratePlan()
-			
-			SendoutPlan(newresult,client)
-			break
+					command = clingo_interface_gui.msg.ClingoFluent("noop",[])
+					sensedfluent =  clingo_interface_gui.msg.ClingoFluent()
+					evalfluent = []
+					
+					goal = clingo_interface_gui.msg.ClingoInterfaceGoal(command, sensedfluent, evalfluent)
+					client.send_goal(goal)
+					client.wait_for_result()
+					result = client.get_result()
+
+					for fluent in result.observable_fluents:
+						op = fluent.op
+						arg = fluent.args
+						curstate = (str(0),[op]+arg)
+						s="("
+						for i in range(1,len(curstate[1])):
+							s = s + curstate[1][i]+","
+							s = s+"0).\n"
+							newinit = curstate[1][0]+s
+						inputFile.write(newinit)
+						print "Initial sensing:"+ newinit
+					inputFile.close()
+					newresult = GeneratePlan()
+					SendoutPlan(newresult,client)
+					return
 
 
 

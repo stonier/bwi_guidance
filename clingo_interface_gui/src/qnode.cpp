@@ -14,8 +14,10 @@
 #include <clingo_interface_gui/qnode.hpp>
 #include <tf/transform_datatypes.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <sound_play/SoundRequest.h>
 
 #include <boost/thread/thread.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 /*****************************************************************************
  ** Namespaces
@@ -53,6 +55,7 @@ namespace clingo_interface_gui {
     ros::param::get("~location_file", location_file);
     ros::param::param<std::string>("~global_frame", global_frame_, "map");
     ros::param::param("~sim_auto_door", sim_auto_door_, true);
+    ros::param::param("~sound_request", sound_request_, false);
     ros::param::param("/use_sim_time", use_sim_time, false);
     if (sim_auto_door_) {
       ROS_INFO("ClingoInterface: Running in simulation!");
@@ -86,6 +89,13 @@ namespace clingo_interface_gui {
 
     robot_controller_.reset(new actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>("move_base", true));
     robot_controller_->waitForServer();
+
+    if (sound_request_) {
+      sound_player_ = nh_->advertise<sound_play::SoundRequest>("robotsound", 1);
+      ROS_INFO("I will try and speak!");
+    } else {
+      ROS_INFO("OK. I won't speak");
+    }
 
     ROS_INFO_STREAM("ClingoInterface: move_base server is now AVAILABLE");
 
@@ -134,9 +144,11 @@ namespace clingo_interface_gui {
           pose.pose.position.y = approach_pt.y;
           tf::quaternionTFToMsg(tf::createQuaternionFromYaw(approach_yaw), 
               pose.pose.orientation); 
-          float start_time = ros::Time::now().toSec();
+          boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
           bool success = executeRobotGoal(pose);
-          float cost = ros::Time::now().toSec() - start_time;
+          boost::posix_time::ptime end_time = boost::posix_time::microsec_clock::local_time();
+          boost::posix_time::time_duration time_diff = end_time - start_time;
+          float cost = time_diff.total_milliseconds() / 1000.0f;
           resp.success = success;
 
           // Publish the observable fluents
@@ -167,7 +179,7 @@ namespace clingo_interface_gui {
           if (req->command.op == "approach") {
             clingo_interface_gui::ClingoFluent door_open;
             door_open.args.push_back(door_name);
-            if (gh_->isDoorOpen(door_idx)) {
+            if (handler_->isDoorOpen(door_idx)) {
               door_open.op = "open";
               resp.observable_fluents.push_back(door_open);
             } else {
@@ -196,6 +208,7 @@ namespace clingo_interface_gui {
         button2_enabled_ = false;
         location_box_enabled_ = false;
         display_text_ = "Can you please open " + door_name;
+        speak("Can you please open the door?");
         Q_EMIT updateFrameInfo();
 
         /* Wait for the door to be opened */
@@ -212,7 +225,7 @@ namespace clingo_interface_gui {
             as_->setPreempted();
             return;
           }
-          door_open = gh_->isDoorOpen(door_idx);
+          door_open = handler_->isDoorOpen(door_idx);
           count++;
           r.sleep();
         }
@@ -228,6 +241,7 @@ namespace clingo_interface_gui {
           resp.status = "User unable to open door";
         } else {
           display_text_ = "Thank you for opening the door!";
+          speak("Thank you!");
           Q_EMIT updateFrameInfo();
           door_open_fluent.op = "open";
           resp.success = true;
@@ -241,7 +255,7 @@ namespace clingo_interface_gui {
         size_t door_idx = handler_->getDoorIdx(door_name);
         clingo_interface_gui::ClingoFluent door_open;
         door_open.args.push_back(door_name);
-        if (gh_->isDoorOpen(door_idx)) {
+        if (handler_->isDoorOpen(door_idx)) {
           door_open.op = "open";
           resp.observable_fluents.push_back(door_open);
         } else {
@@ -254,8 +268,8 @@ namespace clingo_interface_gui {
         size_t door_idx = handler_->getDoorIdx(door_name);
         topological_mapper::Point2f robot_loc(robot_x_, robot_y_);
         bool op_door = (sense_fluent_op == "beside") ? 
-          handler_->isRobotBesideDoor(robot_loc, robot_yaw_, 1.5, door_idx) :
-          handler_->isRobotFacingDoor(robot_loc, robot_yaw_, 1.5, door_idx);
+          handler_->isRobotBesideDoor(robot_loc, robot_yaw_, 2.0, door_idx) :
+          handler_->isRobotFacingDoor(robot_loc, robot_yaw_, 2.0, door_idx);
         if (!op_door) {
           clingo_interface_gui::ClingoFluent n_op;
           n_op.op = "n_" + sense_fluent_op;
@@ -352,7 +366,9 @@ namespace clingo_interface_gui {
       button2_enabled_ = false;
       location_box_enabled_ = false;
       display_text_ = "Hello " + req->command.args[0] + "!!";
+      speak("Can you give me the mail " + req->command.args[0]);
       Q_EMIT updateFrameInfo();
+      sleep(5);
       clingo_interface_gui::ClingoFluent visited;
       visited.op = "visited";
       visited.args.push_back(req->command.args[0]);
@@ -419,15 +435,16 @@ namespace clingo_interface_gui {
       int door_idx) {
     size_t num_doors = handler_->getNumDoors();
     topological_mapper::Point2f robot_loc(robot_x_, robot_y_);
+    bool first_close_door_found = false;
     for (size_t door = 0; door < num_doors; ++door) {
       if (door_idx != -1 && door != door_idx) {
         continue;
       }
       bool facing_door = handler_->isRobotFacingDoor(
-          robot_loc, robot_yaw_, 1.5, door);
+          robot_loc, robot_yaw_, 2.0, door);
       bool beside_door = handler_->isRobotBesideDoor(
-          robot_loc, robot_yaw_, 1.5, door);
-      if (!facing_door) {
+          robot_loc, robot_yaw_, 2.0, door);
+      if (!facing_door || first_close_door_found) {
         clingo_interface_gui::ClingoFluent n_facing;
         n_facing.op = "n_facing";
         n_facing.args.push_back(handler_->getDoorString(door));
@@ -438,7 +455,7 @@ namespace clingo_interface_gui {
         facing.args.push_back(handler_->getDoorString(door));
         fluents.push_back(facing);
       }
-      if (!beside_door) {
+      if (!beside_door || first_close_door_found) {
         clingo_interface_gui::ClingoFluent n_beside;
         n_beside.op = "n_beside";
         n_beside.args.push_back(handler_->getDoorString(door));
@@ -448,6 +465,9 @@ namespace clingo_interface_gui {
         beside.op = "beside";
         beside.args.push_back(handler_->getDoorString(door));
         fluents.push_back(beside);
+      }
+      if (beside_door) {
+        first_close_door_found = true;
       }
     }
   }
@@ -459,6 +479,16 @@ namespace clingo_interface_gui {
     robot_controller_->waitForResult();
     actionlib::SimpleClientGoalState state = robot_controller_->getState();
     return state == actionlib::SimpleClientGoalState::SUCCEEDED;
+  }
+
+  void QNode::speak(const std::string& text) {
+    if (sound_request_) {
+      sound_play::SoundRequest msg;
+      msg.sound = sound_play::SoundRequest::SAY;
+      msg.command = sound_play::SoundRequest::PLAY_ONCE;
+      msg.arg = text;
+      sound_player_.publish(msg);
+    }
   }
 
   void QNode::run() {

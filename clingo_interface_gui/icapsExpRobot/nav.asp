@@ -306,61 +306,20 @@ person(alice) :- true.
 person(bob) :- true.
 person(carol) :- true.
 person(dan) :- true.
-person(erin) :- true.
-person(frank) :- true.
-person(george) :- true.
-person(harry) :- true.
-person(ian) :- true.
-person(jack) :- true.
-
-office(o3_508) :- true.
-office(o3_510) :- true.
-office(o3_512) :- true.
-office(o3_416) :- true.
 office(l3_414a) :- true.
 office(s3_516) :- true.
-office(l3_436) :- true.
-office(o3_428) :- true.
-office(o3_426) :- true.
 office(l3_414b) :- true.
 office(l3_414) :- true.
-office(o3_402) :- true.
-office(o3_412) :- true.
-office(o3_502) :- true.
-office(o3_404) :- true.
-office(o3_418) :- true.
-office(o3_420) :- true.
-office(o3_422) :- true.
-office(o3_430) :- true.
-office(o3_432) :- true.
-
 room(cor) :- true.
 
-door(d3_508) :- true.
-door(d3_510) :- true.
-door(d3_512) :- true.
-door(d3_416) :- true.
 door(d3_414a1) :- true.
 door(d3_414a2) :- true.
 door(d3_414a3) :- true.
 door(d3_5161) :- true.
 door(d3_5162) :- true.
-door(d3_4361) :- true.
-door(d3_4362) :- true.
-door(d3_428) :- true.
-door(d3_426) :- true.
 door(d3_414b1) :- true.
 door(d3_414b2) :- true.
 door(d3_414b3) :- true.
-door(d3_402) :- true.
-door(d3_412) :- true.
-door(d3_502) :- true.
-door(d3_404) :- true.
-door(d3_418) :- true.
-door(d3_420) :- true.
-door(d3_422) :- true.
-door(d3_430) :- true.
-door(d3_432) :- true.
 
 #domain door(D).
 #domain door(D1).
@@ -421,31 +380,16 @@ exogenousAction(serve(V_room)) :- true.
 constant_sort(serve(V_room),boolean) :- true.
 
 h(eql(hasdoor(R,D),false)) :- {not h(eql(hasdoor(R,D),false))}0,true.
-h(eql(hasdoor(o3_508,d3_508),true)) :- true.
-h(eql(hasdoor(o3_510,d3_510),true)) :- true.
-h(eql(hasdoor(o3_512,d3_512),true)) :- true.
-h(eql(hasdoor(o3_416,d3_416),true)) :- true.
+h(eql(hasdoor(l3_414,d3_414a3),true)) :- true.
+h(eql(hasdoor(l3_414,d3_414b3),true)) :- true.
 h(eql(hasdoor(l3_414a,d3_414a1),true)) :- true.
 h(eql(hasdoor(l3_414a,d3_414a2),true)) :- true.
 h(eql(hasdoor(l3_414a,d3_414a3),true)) :- true.
 h(eql(hasdoor(s3_516,d3_5161),true)) :- true.
 h(eql(hasdoor(s3_516,d3_5162),true)) :- true.
-h(eql(hasdoor(l3_436,d3_4361),true)) :- true.
-h(eql(hasdoor(l3_436,d3_4362),true)) :- true.
-h(eql(hasdoor(o3_426,d3_426),true)) :- true.
-h(eql(hasdoor(o3_428,d3_428),true)) :- true.
 h(eql(hasdoor(l3_414b,d3_414b1),true)) :- true.
 h(eql(hasdoor(l3_414b,d3_414b2),true)) :- true.
 h(eql(hasdoor(l3_414b,d3_414b3),true)) :- true.
-h(eql(hasdoor(o3_402,d3_402),true)) :- true.
-h(eql(hasdoor(o3_412,d3_412),true)) :- true.
-h(eql(hasdoor(o3_502,d3_502),true)) :- true.
-h(eql(hasdoor(o3_404,d3_404),true)) :- true.
-h(eql(hasdoor(o3_418,d3_418),true)) :- true.
-h(eql(hasdoor(o3_420,d3_420),true)) :- true.
-h(eql(hasdoor(o3_422,d3_422),true)) :- true.
-h(eql(hasdoor(o3_430,d3_430),true)) :- true.
-h(eql(hasdoor(o3_432,d3_432),true)) :- true.
 h(eql(hasdoor(cor,D),true)) :- D!=d3_414a3,D!=d3_414b3.
 
 h(eql(open(D),false),V_step) :- {not h(eql(open(D),false),V_step)}0,true.

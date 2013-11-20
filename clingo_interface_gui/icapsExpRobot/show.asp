@@ -63,6 +63,8 @@ cost(1,V_step) :- callforopen(D,V_step).
 #show served/2.
 #show n_served/2.
 
+#show goal/2.
+
 %#show v_approach/2.
 %#show v_gothrough/2.
 %#show v_callforopen/2.
