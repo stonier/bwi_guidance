@@ -2,7 +2,7 @@
 #define BWI_GUIDANCE_SOLVER_PERSON_MODEL_IROS14
 
 #include <nav_msgs/OccupancyGrid.h>
-#include <rl_pursuit/planning/Model.h>
+#include <bwi_rl/planning/Model.h>
 #include <stdint.h>
 
 #include <bwi_guidance_solver/structures_iros14.h>

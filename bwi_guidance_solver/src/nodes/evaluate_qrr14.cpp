@@ -5,13 +5,13 @@
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 
-#include <rl_pursuit/planning/ValueIteration.h>
+#include <bwi_rl/planning/ValueIteration.h>
 
-#include <rl_pursuit/common/Util.h>
-#include <rl_pursuit/planning/MCTS.h>
-#include <rl_pursuit/planning/UCTEstimator.h>
-#include <rl_pursuit/planning/ModelUpdaterSingle.h>
-#include <rl_pursuit/planning/IdentityStateMapping.h>
+#include <bwi_rl/common/Util.h>
+#include <bwi_rl/planning/MCTS.h>
+#include <bwi_rl/planning/UCTEstimator.h>
+#include <bwi_rl/planning/ModelUpdaterSingle.h>
+#include <bwi_rl/planning/IdentityStateMapping.h>
 
 #include <bwi_guidance_solver/heuristic_solver_qrr14.h>
 #include <bwi_guidance_solver/person_estimator_qrr14.h>
