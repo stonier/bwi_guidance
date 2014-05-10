@@ -58,6 +58,7 @@ namespace bwi_guidance {
           StateQRR14 &state, bool &terminal, int &depth_count);
       virtual void getFirstAction(const StateQRR14 &state, ActionQRR14 &action);
       virtual bool getNextAction(const StateQRR14 &state, ActionQRR14 &action);
+      virtual void getAllActions(const StateQRR14 &state, std::vector<ActionQRR14>& actions);
       virtual float getTransitionProbability(const StateQRR14& state, 
           const ActionQRR14& action, const StateQRR14& next_state);
 

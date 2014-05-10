@@ -66,6 +66,18 @@ namespace bwi_guidance {
   bool operator==(const StateQRR14& l, const StateQRR14& r);
   std::ostream& operator<<(std::ostream& stream, const StateQRR14& s);
 
+  struct StateQRR14Hash { 
+    static size_t hash(const StateQRR14& key) {
+      return (key.visible_robot % 10) +
+        10 * (key.robot_direction % 8) + 
+        80 * (key.num_robots_left % 6) + 
+        480 * (key.direction % 8) + 
+        4840 * (key.graph_id % 50);
+    }
+    static bool equal(const StateQRR14& key1, const StateQRR14& key2) {return key1==key2;}
+  }; 
+
+
 } /* bwi_guidance */
 
 #endif /* end of include guard: STRUCTURES_HDY3OBT2 */

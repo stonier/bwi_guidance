@@ -53,6 +53,12 @@ target_link_libraries(bwi_guidance_solver
 add_executable(test_vi 
   test/test_vi.cpp
 )
+add_executable(test_mt_mcts 
+  test/test_mt_mcts.cpp
+)
+target_link_libraries(test_mt_mcts 
+  bwi_guidance_solver
+)
 
 add_executable(test_mdp_qrr14 
   test/test_mdp_qrr14.cpp
