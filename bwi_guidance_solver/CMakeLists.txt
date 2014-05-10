@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(bwi_guidance_solver)
 
 ## Find catkin and external packages
-find_package(catkin REQUIRED COMPONENTS bwi_guidance bwi_mapper rl_pursuit)
+find_package(catkin REQUIRED COMPONENTS bwi_guidance bwi_mapper rl_pursuit bwi_rl)
 find_package(Boost REQUIRED COMPONENTS serialization program_options)
 
 ###################################
@@ -52,6 +52,12 @@ target_link_libraries(bwi_guidance_solver
 
 add_executable(test_vi 
   test/test_vi.cpp
+)
+add_executable(test_mt_mcts 
+  test/test_mt_mcts.cpp
+)
+target_link_libraries(test_mt_mcts 
+  bwi_guidance_solver
 )
 
 add_executable(test_mdp_qrr14 

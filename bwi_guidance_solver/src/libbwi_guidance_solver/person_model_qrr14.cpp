@@ -179,6 +179,11 @@ namespace bwi_guidance {
     }
     return false;
   }
+
+  void PersonModelQRR14::getAllActions(const StateQRR14 &state,
+      std::vector<ActionQRR14>& actions) {
+    actions = getActionsAtState(state);
+  }
   
   float PersonModelQRR14::getTransitionProbability(const StateQRR14& state,
       const ActionQRR14& action, const StateQRR14& next_state) {
